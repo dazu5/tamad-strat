@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Data (large files stay out of git; document sources instead)
+data/
+*.csv
+*.parquet
+*.feather
+
+# Results / scratch
+results/raw/
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
+
+# graphify output (rebuilt by watcher)
+graphify-out/
