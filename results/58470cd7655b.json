@@ -1,0 +1,34 @@
+{
+  "config": {
+    "symbol": "ETHUSDT",
+    "interval": "15m",
+    "start": "2023-01-01",
+    "end": "2025-01-01",
+    "rr": 3.0,
+    "risk_per_trade": 1.0,
+    "sweep_required": false,
+    "c1_min_atr": 1.0,
+    "zones": [
+      "div"
+    ],
+    "zone_pad_atr": 0.25,
+    "bias_tf": "1d",
+    "bias_max_age": 12,
+    "tp_mode": "own",
+    "session": "asia_00_08"
+  },
+  "config_hash": "58470cd7655b",
+  "split": "test",
+  "holdout_unlocked": false,
+  "setups": 68,
+  "metrics": {
+    "trade_count": 68,
+    "wins": 20,
+    "losses": 48,
+    "win_rate": 0.29411764705882354,
+    "net_r": 12.0,
+    "expectancy_r": 0.17647058823529413,
+    "profit_factor": 1.25
+  },
+  "cached": false
+}
