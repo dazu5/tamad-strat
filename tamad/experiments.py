@@ -50,6 +50,10 @@ class RunConfig:
     # significant-area context (issues #8-#10) — none in V0
     zones: tuple[str, ...] = ()
     zone_pad_atr: float = 0.25
+    # HTF-bias mode V3 (issue #13) — off by default
+    bias_tf: str | None = None       # e.g. "4h" or "1d"
+    bias_max_age: int = 12           # bias lifetime in HTF bars
+    tp_mode: str = "own"             # "own" = 3R; "htf" = HTF pattern's target
 
     def config_hash(self) -> str:
         """Stable across future field additions: default values are excluded,
@@ -109,6 +113,40 @@ def _filter_by_zones(setups: pd.DataFrame, candles: pd.DataFrame,
     return setups.sort_index()[keep]
 
 
+def _apply_bias(setups: pd.DataFrame, htf_setups: pd.DataFrame, bias_tf: str,
+                bias_max_age: int, tp_mode: str) -> pd.DataFrame:
+    """Keep LTF setups aligned with the governing HTF bias window.
+
+    Each HTF setup opens a directional window of bias_max_age HTF bars
+    from its signal time; the LATEST window covering a trigger wins. With
+    tp_mode="htf" the covering HTF setup's target becomes the trade's
+    tp_override (the extended-TP variant the group teaches).
+    """
+    if setups.empty or htf_setups.empty:
+        return setups.iloc[0:0]
+    window = pd.Timedelta(milliseconds=data._INTERVAL_MS[bias_tf]) * bias_max_age
+    htf = htf_setups.sort_index()
+    starts = htf.index
+
+    keep_idx = []
+    overrides = []
+    for t, s in setups.iterrows():
+        pos = starts.searchsorted(t, side="right") - 1
+        if pos < 0:
+            continue
+        governing = htf.iloc[pos]
+        if t >= starts[pos] + window:
+            continue
+        if int(s["side"]) != int(governing["side"]):
+            continue
+        keep_idx.append(t)
+        overrides.append(float(governing["tp"]))
+    out = setups.loc[keep_idx].copy()
+    if tp_mode == "htf" and not out.empty:
+        out["tp_override"] = overrides
+    return out
+
+
 def split_label(start, end) -> str:
     start, end = data.to_utc(start), data.to_utc(end)
     if end > HOLDOUT_START:
@@ -142,6 +180,12 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
         setups = setups[setups["c1_atr_mult"] >= config.c1_min_atr]
     if config.zones:
         setups = _filter_by_zones(setups, candles, config)
+    if config.bias_tf:
+        htf_candles = data.candles(config.symbol, config.bias_tf,
+                                   config.start, config.end)
+        htf_setups = pattern.detect(htf_candles, pattern.PatternConfig(rr=config.rr))
+        setups = _apply_bias(setups, htf_setups, config.bias_tf,
+                             config.bias_max_age, config.tp_mode)
     trades = engine.simulate(setups, candles, rr=config.rr,
                              risk_per_trade=config.risk_per_trade)
 

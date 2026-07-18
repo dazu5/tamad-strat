@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from tamad.engine import simulate
 from tests.conftest import make_candles
@@ -115,6 +116,31 @@ def test_signal_on_last_bar_produces_no_trade():
     ])
     trades = simulate(make_setup(candles, 1, sl=98.0), candles)
     assert trades.empty
+
+
+def test_tp_override_replaces_rr_target():
+    candles = make_candles([
+        (100, 101, 99, 100.5),
+        (100, 101, 99.5, 100.5),   # fill 100, sl 98 -> own tp would be 106
+        (100.5, 111, 99, 110.5),   # override target 110 touched
+    ])
+    setups = make_setup(candles, 0, sl=98.0)
+    setups["tp_override"] = 110.0
+    t = simulate(setups, candles).iloc[0]
+    assert t["tp"] == 110.0
+    assert t["exit_reason"] == "tp"
+    assert t["r_multiple"] == pytest.approx((110.0 - 100.0) / 2.0)   # +5R
+
+
+def test_tp_override_beyond_fill_direction_skips_trade():
+    candles = make_candles([
+        (100, 101, 99, 100.5),
+        (100, 101, 99.5, 100.5),   # fill 100; override 99.5 is BELOW fill
+        (100.5, 101, 99, 100),
+    ])
+    setups = make_setup(candles, 0, sl=98.0)
+    setups["tp_override"] = 99.5   # non-positive reward for a long
+    assert simulate(setups, candles).empty
 
 
 def test_gap_through_stop_at_fill_is_skipped():

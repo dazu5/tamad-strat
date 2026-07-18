@@ -74,7 +74,13 @@ def simulate(
         risk = (fill - sl) * side
         if risk <= 0:
             continue
-        tp = fill + side * rr * risk
+        override = s.get("tp_override")
+        if override is not None and pd.notna(override):
+            tp = float(override)
+            if (tp - fill) * side <= 0:   # target already passed at fill
+                continue
+        else:
+            tp = fill + side * rr * risk
 
         exit_index, exit_reason = _first_exit(highs, lows, pos + 1, side, sl, tp)
         if exit_reason is not None:
