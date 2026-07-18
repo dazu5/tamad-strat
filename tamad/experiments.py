@@ -179,3 +179,63 @@ def list_runs() -> pd.DataFrame:
 
 def load_trades(config_hash: str) -> pd.DataFrame:
     return pd.read_parquet(Path(STORE_DIR) / "raw" / f"{config_hash}.parquet")
+
+
+def pending_dir() -> Path:
+    return Path(STORE_DIR) / "pending"
+
+
+def mark_pending(config: RunConfig) -> Path:
+    """Record a launched-but-unfinished run (dashboard's in-progress list)."""
+    import json as _json
+    path = pending_dir() / f"{config.config_hash()}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_json.dumps(asdict(config)), encoding="utf-8")
+    return path
+
+
+def clear_pending(config_hash: str) -> None:
+    path = pending_dir() / f"{config_hash}.json"
+    if path.exists():
+        path.unlink()
+
+
+def list_pending() -> pd.DataFrame:
+    rows = []
+    for f in sorted(pending_dir().glob("*.json")):
+        cfg = json.loads(f.read_text(encoding="utf-8"))
+        finished = (Path(STORE_DIR) / f"{f.stem}.json").exists()
+        if finished:
+            f.unlink()
+            continue
+        rows.append({"config_hash": f.stem, **{k: cfg[k] for k in
+                     ("symbol", "interval", "start", "end")}})
+    return pd.DataFrame(rows)
+
+
+def main(argv=None) -> None:
+    import argparse
+    p = argparse.ArgumentParser(description="Run one experiment config.")
+    p.add_argument("--symbol", required=True)
+    p.add_argument("--interval", required=True)
+    p.add_argument("--start", required=True)
+    p.add_argument("--end", required=True)
+    p.add_argument("--sweep-required", action="store_true")
+    p.add_argument("--c1-min-atr", type=float, default=None)
+    p.add_argument("--zones", default="", help="comma-separated zone kinds")
+    args = p.parse_args(argv)
+    config = RunConfig(
+        symbol=args.symbol, interval=args.interval, start=args.start,
+        end=args.end, sweep_required=args.sweep_required,
+        c1_min_atr=args.c1_min_atr,
+        zones=tuple(k for k in args.zones.split(",") if k),
+    )
+    record = run(config)
+    clear_pending(config.config_hash())
+    m = record["metrics"]
+    print(f"{config.config_hash()}: n={m['trade_count']} "
+          f"wr={m['win_rate']:.3f} pf={m['profit_factor']:.3f}")
+
+
+if __name__ == "__main__":
+    main()
