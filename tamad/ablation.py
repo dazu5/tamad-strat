@@ -64,8 +64,8 @@ def combo_context(symbol: str, interval: str, start: str, end: str) -> dict:
             "kind_hits": kind_hits, "bias_keep": bias_keep}
 
 
-def evaluate(ctx: dict, cfg: dict) -> pd.DataFrame:
-    """Trades for one grid config on one combo context."""
+def select_setups(ctx: dict, cfg: dict) -> pd.DataFrame:
+    """Apply a grid config's pills to a combo context's setups."""
     setups = ctx["setups"]
     mask = pd.Series(True, index=setups.index)
     if cfg["sweep_required"]:
@@ -81,7 +81,12 @@ def evaluate(ctx: dict, cfg: dict) -> pd.DataFrame:
         mask &= setups.index.isin(list(qualifying))
     if cfg["bias_tf"]:
         mask &= setups.index.isin(list(ctx["bias_keep"][cfg["bias_tf"]]))
-    return engine.simulate(setups[mask], ctx["candles"])
+    return setups[mask]
+
+
+def evaluate(ctx: dict, cfg: dict) -> pd.DataFrame:
+    """Trades for one grid config on one combo context."""
+    return engine.simulate(select_setups(ctx, cfg), ctx["candles"])
 
 
 def portfolio_row(trade_frames: list[pd.DataFrame]) -> dict:

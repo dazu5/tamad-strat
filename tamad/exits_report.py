@@ -45,13 +45,16 @@ def main() -> None:
     p.add_argument("--session", default=None)
     p.add_argument("--bias", default=None)
     p.add_argument("--report", default=None)
+    p.add_argument("--symbols", default=",".join(SYMBOLS),
+                   help="comma-separated symbols (default: crypto basket)")
     args = p.parse_args()
+    symbols = [s for s in args.symbols.split(",") if s]
     cfg = dict(sweep_required=args.sweep, c1_min_atr=args.c1,
                zones=tuple(k for k in args.zones.split(",") if k),
                session=args.session, bias_tf=args.bias)
 
     rows = []
-    for symbol in SYMBOLS:
+    for symbol in symbols:
         for interval in INTERVALS:
             ctx = ablation.combo_context(symbol, interval, args.start, args.end)
             setups = ctx["setups"]
