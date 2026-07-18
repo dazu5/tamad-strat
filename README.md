@@ -25,4 +25,9 @@ Claimed baseline under test: 60% win rate at 1:3 RR over 300+ journaled trades (
 - [x] Research: methodology distilled from all four Revelio videos
 - [x] PRD written and filed as issue #1
 - [x] PRD broken into 17 tracer-bullet issues (#2–#18)
-- [ ] Implementation — starts with #2 (walking skeleton) and #3 (Monte Carlo checker) on explicit approval
+- [x] Walking skeleton, claim checker, data backbone, experiment runner (#2–#5)
+- [x] **V0 verdict (#6): the naked pattern has no edge** — 97,535 trades, WR pinned at the 25% breakeven, `docs/V0_RESULTS.md`
+- [x] Pattern pills (#7): sweep adds nothing; C1≥1×ATR modest lift — `docs/PILLS_RESULTS.md`
+- [x] Dashboard browse + launch (#11, #12)
+- [ ] Zone experiments #8–#10 (campaign running), HTF-bias #13 (campaign running)
+- [ ] Ablation #14 → exits #15 → forex #16 → risk #17 → costs + holdout sign-off #18
