@@ -1,0 +1,32 @@
+{
+  "config": {
+    "symbol": "SOLUSDT",
+    "interval": "15m",
+    "start": "2017-08-01",
+    "end": "2023-01-01",
+    "rr": 3.0,
+    "risk_per_trade": 1.0,
+    "sweep_required": false,
+    "c1_min_atr": null,
+    "zones": [],
+    "zone_pad_atr": 0.25,
+    "bias_tf": "1d",
+    "bias_max_age": 12,
+    "tp_mode": "htf",
+    "session": null
+  },
+  "config_hash": "871c3794c534",
+  "split": "train",
+  "holdout_unlocked": false,
+  "setups": 4328,
+  "metrics": {
+    "trade_count": 759,
+    "wins": 38,
+    "losses": 721,
+    "win_rate": 0.05006587615283267,
+    "net_r": 43.67474692837985,
+    "expectancy_r": 0.0575424860716467,
+    "profit_factor": 1.0605752384582243
+  },
+  "cached": false
+}
