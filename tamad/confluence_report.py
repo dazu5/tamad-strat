@@ -61,6 +61,11 @@ def main() -> None:
     p.add_argument("--report", default=None)
     args = p.parse_args()
 
+    import gc
+
+    bucket_dir = Path("results") / "buckets"
+    bucket_dir.mkdir(parents=True, exist_ok=True)
+
     v1_rows = []
     bucket_frames = []
     for symbol in SYMBOLS:
@@ -79,11 +84,21 @@ def main() -> None:
                       f"n={record['metrics']['trade_count']} "
                       f"wr={record['metrics']['win_rate']:.3f} "
                       f"pf={record['metrics']['profit_factor']:.3f}", flush=True)
-            candles, setups, hits = kind_membership(
-                symbol, interval, args.start, args.end)
-            buckets = bucket_metrics(candles, setups, hits)
-            buckets.insert(0, "combo", f"{symbol} {interval}")
+                gc.collect()
+            # bucket analysis persists per combo so a crash never loses it
+            bucket_file = bucket_dir / f"{symbol}_{interval}.json"
+            if bucket_file.exists():
+                buckets = pd.read_json(bucket_file)
+            else:
+                candles, setups, hits = kind_membership(
+                    symbol, interval, args.start, args.end)
+                buckets = bucket_metrics(candles, setups, hits)
+                buckets.insert(0, "combo", f"{symbol} {interval}")
+                buckets.to_json(bucket_file, indent=2)
+                del candles, setups, hits
+                gc.collect()
             bucket_frames.append(buckets)
+            print(f"buckets done: {symbol} {interval}", flush=True)
 
     v1 = pd.DataFrame(v1_rows)
     buckets_all = pd.concat(bucket_frames)
