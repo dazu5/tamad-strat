@@ -78,3 +78,18 @@ def test_negative_results_persist_like_any_run(store):
     record = experiments.run(RunConfig(**{**CFG, "end": "2022-01-01 01:00"}))
     assert record["metrics"]["trade_count"] == 0
     assert len(experiments.list_runs()) == 1
+
+
+def test_pill_values_change_the_config_hash():
+    base = RunConfig(**CFG)
+    assert base.config_hash() != RunConfig(**CFG, sweep_required=True).config_hash()
+    assert base.config_hash() != RunConfig(**CFG, c1_min_atr=1.5).config_hash()
+
+
+def test_sweep_pill_filters_non_sweep_setups(store):
+    # the fixture's single setup HAS a sweep (C2 low 94 < C1 low 95),
+    # so sweep_required keeps it and a high C1 bar drops it
+    kept = experiments.run(RunConfig(**CFG, sweep_required=True))
+    assert kept["metrics"]["trade_count"] == 1
+    dropped = experiments.run(RunConfig(**CFG, c1_min_atr=99.0))
+    assert dropped["metrics"]["trade_count"] == 0

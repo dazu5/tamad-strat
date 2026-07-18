@@ -43,6 +43,9 @@ class RunConfig:
     end: str
     rr: float = 3.0
     risk_per_trade: float = 1.0
+    # pattern pills (issue #7) — off in V0
+    sweep_required: bool = False
+    c1_min_atr: float | None = None
 
     def config_hash(self) -> str:
         canonical = json.dumps(asdict(self), sort_keys=True)
@@ -76,6 +79,10 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
 
     candles = data.get_candles(config.symbol, config.interval, config.start, config.end)
     setups = pattern.detect(candles, pattern.PatternConfig(rr=config.rr))
+    if config.sweep_required:
+        setups = setups[setups["sweep"]]
+    if config.c1_min_atr is not None:
+        setups = setups[setups["c1_atr_mult"] >= config.c1_min_atr]
     trades = engine.simulate(setups, candles, rr=config.rr,
                              risk_per_trade=config.risk_per_trade)
 
