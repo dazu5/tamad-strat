@@ -114,7 +114,7 @@ def page_claim(pdf: PdfPages, results: dict) -> None:
     colors = [GRAY, RED, BLUE, GREEN]
     bars = ax.bar(labels, [v * 100 for v in values], color=colors, width=0.55)
     ax.axhline(25, color=RED, linestyle="--", linewidth=1)
-    ax.text(3.45, 26, "25% = breakeven at 1:3", color=RED, fontsize=9, ha="right")
+    ax.text(-0.42, 26.5, "25% = breakeven at 1:3", color=RED, fontsize=9, ha="left")
     for bar, v in zip(bars, values):
         ax.text(bar.get_x() + bar.get_width() / 2, v * 100 + 1, f"{v:.1%}",
                 ha="center", fontsize=11, fontweight="bold", color=INK)
@@ -134,27 +134,27 @@ def page_claim(pdf: PdfPages, results: dict) -> None:
 
 def page_ladder(pdf: PdfPages) -> None:
     rows = [
-        ("V0  naked pattern", "all triplets, 1:3, no filters", "coin flip — WR = breakeven, PF ≈ 1.0", "docs/V0_RESULTS.md"),
-        ("V1  ideal sweep", "C2 sweeps C1 low/high", "no lift; bottom of ablation ranks", "docs/PILLS_RESULTS.md"),
-        ("V1  C1 ≥ 1×ATR", "climax first candle", "modest lift — first real clue", "docs/PILLS_RESULTS.md"),
-        ("V2  as taught", "pattern at any of 5 zone types", "filters nothing (~70% qualify)", "docs/ZONES_RESULTS.md"),
-        ("V2  confluence stack", "2+ zones agree", "flat: PF 0.98 / 1.01 / 1.00", "docs/ZONES_RESULTS.md"),
-        ("V3  HTF bias", "4h/1d pattern gates LTF entries", "hurts at every bias age", "docs/V3_RESULTS.md"),
-        ("Ablation  336 configs", "train-select → test-confirm", "survivor: C1≥1×ATR + OB + US session (9/10 held)", "docs/ABLATION_RESULTS.md"),
-        ("Exits", "1:3 vs trail 1R / 0.5R vs ATR-trail", "trail_1R best OOS (test PF 1.44 vs 1.18)", "docs/EXITS_RESULTS.md"),
-        ("Risk", "fixed vs high-watermark vs parity", "parity sizing holds OOS", "docs/RISK_RESULTS.md"),
-        ("Costs", "0.22% notional round trip", "ALL portfolios negative; only ETH 1h ≈ breakeven", "docs/COSTS_RESULTS.md"),
+        ("V0  naked pattern", "all triplets, 1:3, no filters", "coin flip — WR = breakeven, PF ≈ 1.0", "V0_RESULTS.md"),
+        ("V1  ideal sweep", "C2 sweeps C1 low/high", "no lift; bottom of ablation ranks", "PILLS_RESULTS.md"),
+        ("V1  C1 ≥ 1×ATR", "climax first candle", "modest lift — first real clue", "PILLS_RESULTS.md"),
+        ("V2  as taught", "pattern at any of 5 zone types", "filters nothing (~70% qualify)", "ZONES_RESULTS.md"),
+        ("V2  confluence stack", "2+ zones agree", "flat: PF 0.98 / 1.01 / 1.00", "ZONES_RESULTS.md"),
+        ("V3  HTF bias", "4h/1d pattern gates LTF entries", "hurts at every bias age", "V3_RESULTS.md"),
+        ("Ablation  336 configs", "train-select → test-confirm", "survivor: C1≥1×ATR + OB + US (9/10 held)", "ABLATION_RESULTS.md"),
+        ("Exits", "1:3 vs trail 1R/0.5R vs ATR-trail", "trail_1R best OOS (test PF 1.44 vs 1.18)", "EXITS_RESULTS.md"),
+        ("Risk", "fixed vs HWM vs parity sizing", "parity sizing holds OOS", "RISK_RESULTS.md"),
+        ("Costs", "0.22% notional round trip", "ALL portfolios negative; ETH 1h ≈ breakeven", "COSTS_RESULTS.md"),
     ]
     fig, ax = plt.subplots(figsize=PAGE)
     ax.axis("off")
     fig.text(0.07, 0.92, "The version ladder — every rule made to earn its place",
              fontsize=20, fontweight="bold", color=INK)
     table = ax.table(cellText=[list(r) for r in rows],
-                     colLabels=["stage", "what was tested", "verdict", "source"],
-                     colWidths=[0.18, 0.27, 0.38, 0.17],
+                     colLabels=["stage", "what was tested", "verdict", "source (docs/)"],
+                     colWidths=[0.17, 0.25, 0.40, 0.18],
                      cellLoc="left", loc="center")
     table.auto_set_font_size(False)
-    table.set_fontsize(9.5)
+    table.set_fontsize(9)
     table.scale(1, 1.75)
     for (r, c), cell in table.get_celld().items():
         cell.set_edgecolor("#e5e7eb")
