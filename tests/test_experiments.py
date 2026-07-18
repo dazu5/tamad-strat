@@ -80,6 +80,32 @@ def test_negative_results_persist_like_any_run(store):
     assert len(experiments.list_runs()) == 1
 
 
+def test_config_hash_stable_across_defaulted_field_additions():
+    base = RunConfig(**CFG)
+    explicit_defaults = RunConfig(**CFG, sweep_required=False, c1_min_atr=None,
+                                  zones=(), zone_pad_atr=0.25)
+    assert base.config_hash() == explicit_defaults.config_hash()
+    assert base.config_hash() != RunConfig(**CFG, zones=("swing",)).config_hash()
+
+
+def test_zone_filter_drops_setups_outside_zones(store, monkeypatch):
+    # a zone that contains the fixture setup's SL (94.0)
+    containing = pd.DataFrame([{
+        "kind": "swing_low", "lower": 93.0, "upper": 95.0,
+        "born": pd.Timestamp("2022-01-01", tz="UTC"),
+        "died": pd.Timestamp("2023-01-01", tz="UTC")}])
+    monkeypatch.setattr(experiments.zones_mod, "detect",
+                        lambda candles, kinds, cfg=None: containing)
+    kept = experiments.run(RunConfig(**CFG, zones=("swing",)))
+    assert kept["metrics"]["trade_count"] == 1
+
+    far_away = containing.assign(lower=10.0, upper=12.0)
+    monkeypatch.setattr(experiments.zones_mod, "detect",
+                        lambda candles, kinds, cfg=None: far_away)
+    dropped = experiments.run(RunConfig(**CFG, zones=("swing",), zone_pad_atr=0.1))
+    assert dropped["metrics"]["trade_count"] == 0
+
+
 def test_pill_values_change_the_config_hash():
     base = RunConfig(**CFG)
     assert base.config_hash() != RunConfig(**CFG, sweep_required=True).config_hash()

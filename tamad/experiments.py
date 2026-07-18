@@ -18,12 +18,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import MISSING, asdict, dataclass, fields
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
-from tamad import data, engine, metrics, pattern
+from tamad import data, engine, metrics, pattern, zones as zones_mod
 
 STORE_DIR = Path(__file__).resolve().parent.parent / "results"
 
@@ -46,10 +47,66 @@ class RunConfig:
     # pattern pills (issue #7) — off in V0
     sweep_required: bool = False
     c1_min_atr: float | None = None
+    # significant-area context (issues #8-#10) — none in V0
+    zones: tuple[str, ...] = ()
+    zone_pad_atr: float = 0.25
 
     def config_hash(self) -> str:
-        canonical = json.dumps(asdict(self), sort_keys=True)
+        """Stable across future field additions: default values are excluded,
+        so a config's hash never changes when new defaulted fields appear."""
+        payload = {}
+        for f in fields(self):
+            value = getattr(self, f.name)
+            default = f.default if f.default is not MISSING else None
+            if value != default:
+                payload[f.name] = list(value) if isinstance(value, tuple) else value
+        canonical = json.dumps(payload, sort_keys=True)
         return hashlib.sha256(canonical.encode()).hexdigest()[:12]
+
+
+def _filter_by_zones(setups: pd.DataFrame, candles: pd.DataFrame,
+                     config: RunConfig) -> pd.DataFrame:
+    """Keep setups whose pattern extreme sits inside an active zone.
+
+    The qualifying price is the setup's SL level — by construction the
+    pattern extreme (low for bulls, high for bears), which is the price
+    the reversal claims is significant. Pad tolerance is zone_pad_atr x
+    ATR at the signal bar.
+    """
+    if setups.empty:
+        return setups
+    zones_df = zones_mod.detect(candles, config.zones)
+    if zones_df.empty:
+        return setups.iloc[0:0]
+    pad = (pattern.atr(candles).bfill() * config.zone_pad_atr).fillna(0.0)
+
+    # sweep line over time: maintain the set of alive zones per signal bar
+    # instead of filtering the full zone frame per setup
+    zs = zones_df.sort_values("born").reset_index(drop=True)
+    born = (pd.to_datetime(zs["born"], utc=True)
+            .astype("datetime64[ns, UTC]").astype("int64").to_numpy())
+    died = (pd.to_datetime(zs["died"], utc=True)
+            .astype("datetime64[ns, UTC]").astype("int64").to_numpy())
+    lower = zs["lower"].to_numpy()
+    upper = zs["upper"].to_numpy()
+    order = np.argsort(died, kind="stable")
+
+    keep = []
+    alive: set[int] = set()
+    next_born = 0
+    next_dead = 0
+    for t, s in setups.sort_index().iterrows():
+        t_ns = t.value
+        while next_born < len(zs) and born[next_born] <= t_ns:
+            alive.add(next_born)
+            next_born += 1
+        while next_dead < len(order) and died[order[next_dead]] <= t_ns:
+            alive.discard(int(order[next_dead]))
+            next_dead += 1
+        price = float(s["sl"])
+        tol = float(pad.get(t, 0.0))
+        keep.append(any(lower[i] - tol <= price <= upper[i] + tol for i in alive))
+    return setups.sort_index()[keep]
 
 
 def split_label(start, end) -> str:
@@ -83,6 +140,8 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
         setups = setups[setups["sweep"]]
     if config.c1_min_atr is not None:
         setups = setups[setups["c1_atr_mult"] >= config.c1_min_atr]
+    if config.zones:
+        setups = _filter_by_zones(setups, candles, config)
     trades = engine.simulate(setups, candles, rr=config.rr,
                              risk_per_trade=config.risk_per_trade)
 
