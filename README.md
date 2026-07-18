@@ -29,5 +29,11 @@ Claimed baseline under test: 60% win rate at 1:3 RR over 300+ journaled trades (
 - [x] **V0 verdict (#6): the naked pattern has no edge** — 97,535 trades, WR pinned at the 25% breakeven, `docs/V0_RESULTS.md`
 - [x] Pattern pills (#7): sweep adds nothing; C1≥1×ATR modest lift — `docs/PILLS_RESULTS.md`
 - [x] Dashboard browse + launch (#11, #12)
-- [ ] Zone experiments #8–#10 (campaign running), HTF-bias #13 (campaign running)
-- [ ] Ablation #14 → exits #15 → forex #16 → risk #17 → costs + holdout sign-off #18
+- [x] Zones #8–#10: OB best single zone; V2-as-taught filters nothing; confluence stacking flat — `docs/ZONES_RESULTS.md`
+- [x] HTF-bias #13: hurts at every distance — `docs/V3_RESULTS.md`
+- [x] Ablation #14: survivor = C1≥1×ATR + OB zone + US session; 9/10 picks confirmed on test — `docs/ABLATION_RESULTS.md`
+- [x] Exits #15: trail_1R chosen (best OOS) — `docs/EXITS_RESULTS.md`, `docs/EXITS_TEST_RESULTS.md`
+- [x] Forex #16: taught exit fails on FX; partial trailing transfer — `docs/FOREX_RESULTS.md`
+- [x] Risk #17: parity sizing holds OOS — `docs/RISK_RESULTS.md`
+- [x] Costs (#18 AFK part): **costs annihilate every timeframe** (median 0.2–1.4 R/trade) — `docs/COSTS_RESULTS.md`
+- [ ] **⛔ AWAITING HOLDOUT SIGN-OFF on issue #18** — the one-shot 2025+ validation runs only after the maintainer's recorded approval
