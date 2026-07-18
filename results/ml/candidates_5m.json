@@ -1,0 +1,220 @@
+{
+  "final": {
+    "n_train": 4162,
+    "n_total": 6502,
+    "n_dropped_nan": 2,
+    "importances": {
+      "risk_pct": 0.0675,
+      "dist_lo20_atr": 0.0655,
+      "c3_body_atr": 0.0637,
+      "c3_front_wick_atr": 0.0581,
+      "dist_hi20_atr": 0.0556,
+      "ret20_atr": 0.0538,
+      "c3_range_atr": 0.0538,
+      "vol_ratio": 0.0531,
+      "atr_pct": 0.0526,
+      "c2_body_atr": 0.0517,
+      "c1_range_atr": 0.0513,
+      "c1_atr_mult": 0.0511,
+      "ema200_dist_atr": 0.0488,
+      "rsi14": 0.0481,
+      "hold_margin_atr": 0.046,
+      "ema50_dist_atr": 0.0459,
+      "c2_range_atr": 0.0426,
+      "hour": 0.0167,
+      "dow": 0.0166,
+      "asset_BTCUSDT": 0.0095,
+      "in_fvg": 0.0089,
+      "confluence_count": 0.007,
+      "asset_ETHUSDT": 0.0062,
+      "in_div": 0.0061,
+      "side": 0.0058,
+      "sweep": 0.0055,
+      "is_weekend": 0.0045,
+      "in_sr": 0.002,
+      "asset_SOLUSDT": 0.0015,
+      "in_swing": 0.0006,
+      "in_ob": 0.0
+    },
+    "candidates": [
+      {
+        "feature": "c3_front_wick_atr",
+        "direction": "<=",
+        "threshold": 0.083246546582686,
+        "quantile": 0.2,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 5.894230769230769,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "rejection tail in the reversal direction on the signal candle"
+      },
+      {
+        "feature": "c3_range_atr",
+        "direction": ">=",
+        "threshold": 1.1265302668505266,
+        "quantile": 0.8,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 5.3701923076923075,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "reach of the hold candle"
+      },
+      {
+        "feature": "risk_pct",
+        "direction": "<=",
+        "threshold": 0.11715192772037854,
+        "quantile": 0.2,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 3.989010989010989,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "stop width vs price: wider stops survive noise AND pay less cost in R"
+      },
+      {
+        "feature": "ret20_atr",
+        "direction": ">=",
+        "threshold": 1.5663292758007674,
+        "quantile": 0.7,
+        "train_retention": 0.30009610764055744,
+        "train_pf": 3.771212121212121,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "how stretched the move into the pattern is (short-horizon momentum)"
+      },
+      {
+        "feature": "vol_ratio",
+        "direction": ">=",
+        "threshold": 1.3090928757619777,
+        "quantile": 0.8,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 3.738927738927739,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "volatility regime (ATR vs its 30d mean) \u2014 expansion vs compression"
+      },
+      {
+        "feature": "c3_body_atr",
+        "direction": ">=",
+        "threshold": 0.5140916032752737,
+        "quantile": 0.8,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 3.6641975308641976,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "size of the hold candle"
+      },
+      {
+        "feature": "dist_hi20_atr",
+        "direction": ">=",
+        "threshold": 1.5299226487214337,
+        "quantile": 0.4,
+        "train_retention": 0.5999519461797213,
+        "train_pf": 2.905068382944489,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "room overhead to recent extremes"
+      },
+      {
+        "feature": "dist_lo20_atr",
+        "direction": ">=",
+        "threshold": 3.6334552605346393,
+        "quantile": 0.8,
+        "train_retention": 0.20014416146083613,
+        "train_pf": 2.8551724137931034,
+        "baseline_pf": 2.283278067266698,
+        "rationale": "support beneath at recent extremes"
+      }
+    ],
+    "rediscovery": {
+      "passed": false,
+      "ranks": {
+        "in_ob": 31,
+        "confluence_count": 22,
+        "hour": 18
+      },
+      "top_n": 10
+    }
+  },
+  "sanity": {
+    "n_train": 17356,
+    "n_total": 26940,
+    "n_dropped_nan": 21,
+    "importances": {
+      "dist_hi20_atr": 0.0565,
+      "vol_ratio": 0.0545,
+      "atr_pct": 0.0544,
+      "risk_pct": 0.0539,
+      "c1_range_atr": 0.0538,
+      "c3_body_atr": 0.0529,
+      "dist_lo20_atr": 0.0523,
+      "c1_atr_mult": 0.0523,
+      "c3_front_wick_atr": 0.0521,
+      "c3_range_atr": 0.0521,
+      "ema200_dist_atr": 0.0517,
+      "rsi14": 0.0517,
+      "hold_margin_atr": 0.0517,
+      "c2_range_atr": 0.051,
+      "c2_body_atr": 0.0503,
+      "ema50_dist_atr": 0.0488,
+      "ret20_atr": 0.0476,
+      "hour": 0.0333,
+      "dow": 0.0183,
+      "confluence_count": 0.0119,
+      "sweep": 0.0064,
+      "in_div": 0.0062,
+      "asset_ETHUSDT": 0.0055,
+      "asset_BTCUSDT": 0.0054,
+      "in_ob": 0.0051,
+      "side": 0.0048,
+      "in_fvg": 0.0048,
+      "is_weekend": 0.0036,
+      "in_sr": 0.0033,
+      "asset_SOLUSDT": 0.0026,
+      "in_swing": 0.0009
+    },
+    "candidates": [
+      {
+        "feature": "vol_ratio",
+        "direction": "<=",
+        "threshold": 0.6055140300315045,
+        "quantile": 0.2,
+        "train_retention": 0.200046093569947,
+        "train_pf": 1.125148514851485,
+        "baseline_pf": 1.0570359981299673,
+        "rationale": "volatility regime (ATR vs its 30d mean) \u2014 expansion vs compression"
+      },
+      {
+        "feature": "dist_lo20_atr",
+        "direction": "<=",
+        "threshold": 1.0078740157480148,
+        "quantile": 0.2,
+        "train_retention": 0.200046093569947,
+        "train_pf": 1.125148514851485,
+        "baseline_pf": 1.0570359981299673,
+        "rationale": "support beneath at recent extremes"
+      },
+      {
+        "feature": "risk_pct",
+        "direction": "<=",
+        "threshold": 0.126926226142059,
+        "quantile": 0.2,
+        "train_retention": 0.200046093569947,
+        "train_pf": 1.1235154394299287,
+        "baseline_pf": 1.0570359981299673,
+        "rationale": "stop width vs price: wider stops survive noise AND pay less cost in R"
+      },
+      {
+        "feature": "dist_hi20_atr",
+        "direction": "<=",
+        "threshold": 0.9478171896316587,
+        "quantile": 0.2,
+        "train_retention": 0.200046093569947,
+        "train_pf": 1.113744075829384,
+        "baseline_pf": 1.0570359981299673,
+        "rationale": "room overhead to recent extremes"
+      }
+    ],
+    "rediscovery": {
+      "passed": false,
+      "ranks": {
+        "in_ob": 25,
+        "confluence_count": 20,
+        "hour": 18
+      },
+      "top_n": 10
+    }
+  }
+}

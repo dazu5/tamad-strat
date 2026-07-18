@@ -1,0 +1,10 @@
+[
+  {"interval": "5m",  "pool": "final", "feature": "c3_front_wick_atr", "direction": "<=", "threshold": 0.083247},
+  {"interval": "5m",  "pool": "final", "feature": "risk_pct",          "direction": "<=", "threshold": 0.117152},
+  {"interval": "15m", "pool": "final", "feature": "risk_pct",          "direction": "<=", "threshold": 0.233783},
+  {"interval": "15m", "pool": "final", "feature": "c3_front_wick_atr", "direction": "<=", "threshold": 0.156695},
+  {"interval": "15m", "pool": "final", "feature": "c1_atr_mult",       "direction": ">=", "threshold": 1.268456},
+  {"interval": "1h",  "pool": "final", "feature": "c3_front_wick_atr", "direction": "<=", "threshold": 0.150429},
+  {"interval": "1h",  "pool": "final", "feature": "c1_atr_mult",       "direction": ">=", "threshold": 1.723767},
+  {"interval": "1h",  "pool": "final", "feature": "risk_pct",          "direction": "<=", "threshold": 0.842920}
+]

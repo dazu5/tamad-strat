@@ -1,0 +1,78 @@
+{
+  "final": [
+    {
+      "feature": "c3_front_wick_atr",
+      "direction": "<=",
+      "threshold": 0.083247,
+      "test_n_baseline": 2340,
+      "test_n_kept": 664,
+      "test_retention": 0.28376068376068375,
+      "test_pf_baseline": 1.5901234567901235,
+      "test_pf_filtered": 1.6571428571428573,
+      "test_pf_baseline_costs": 0.05926170064151797,
+      "test_pf_filtered_costs": 0.02087866554196578
+    },
+    {
+      "feature": "risk_pct",
+      "direction": "<=",
+      "threshold": 0.117152,
+      "test_n_baseline": 2340,
+      "test_n_kept": 1088,
+      "test_retention": 0.46495726495726497,
+      "test_pf_baseline": 1.5901234567901235,
+      "test_pf_filtered": 1.9519725557461407,
+      "test_pf_baseline_costs": 0.05926170064151797,
+      "test_pf_filtered_costs": 0.01959075036116373
+    }
+  ],
+  "side_asymmetry": [
+    {
+      "asset": "BTCUSDT",
+      "side": -1,
+      "train_n": 885,
+      "train_pf": 3.705357142857143,
+      "test_n": 489,
+      "test_pf": 1.7027027027027026
+    },
+    {
+      "asset": "BTCUSDT",
+      "side": 1,
+      "train_n": 851,
+      "train_pf": 3.5301204819277108,
+      "test_n": 452,
+      "test_pf": 1.7488151658767772
+    },
+    {
+      "asset": "ETHUSDT",
+      "side": -1,
+      "train_n": 842,
+      "train_pf": 1.036281179138322,
+      "test_n": 449,
+      "test_pf": 1.9625
+    },
+    {
+      "asset": "ETHUSDT",
+      "side": 1,
+      "train_n": 856,
+      "train_pf": 1.8741092636579573,
+      "test_n": 422,
+      "test_pf": 1.4585152838427948
+    },
+    {
+      "asset": "SOLUSDT",
+      "side": -1,
+      "train_n": 382,
+      "train_pf": 1.1666666666666667,
+      "test_n": 248,
+      "test_pf": 0.9705882352941176
+    },
+    {
+      "asset": "SOLUSDT",
+      "side": 1,
+      "train_n": 348,
+      "train_pf": 1.1578947368421053,
+      "test_n": 280,
+      "test_pf": 1.3214285714285714
+    }
+  ]
+}

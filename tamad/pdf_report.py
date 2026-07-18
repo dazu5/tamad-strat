@@ -289,9 +289,11 @@ def page_next(pdf: PdfPages) -> None:
         ("3. Trade where costs are survivable",
          "1h already pays only ~0.2R/trade; 4h as a traded timeframe (not just bias) is untested. Widen the\n"
          "asset basket at 1h+ to rebuild trade count."),
-        ("4. Regime and robustness work",
-         "Volatility-regime and day-of-week clues (the US-session find suggests more structure) · parameter-\n"
-         "neighborhood gradients around the survivor · walk-forward instead of a single split."),
+        ("4. What the ML layer (#19) already settled",
+         "A random forest over 28 pre-trade features (Revelio Phase 7) confirmed OOS: the edge concentrates in\n"
+         "the TIGHTEST structures (risk% filter, +12–23% test PF on every interval) — so the cost-doom is intrinsic,\n"
+         "and widening stops trades away edge. One real refinement: a clean hold candle (small front wick), the\n"
+         "only rule that also improved after-cost PF (1h: 0.73 → 0.88, still losing). docs/ML_RESULTS.md."),
         ("The gate",
          "Each new optimization round spends the test set. Run the improvement round first, then unlock the\n"
          "2025+ holdout ONCE for the final verdict — sign-off on issue #18."),

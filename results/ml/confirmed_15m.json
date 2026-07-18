@@ -1,0 +1,90 @@
+{
+  "final": [
+    {
+      "feature": "risk_pct",
+      "direction": "<=",
+      "threshold": 0.233783,
+      "test_n_baseline": 561,
+      "test_n_kept": 215,
+      "test_retention": 0.38324420677361853,
+      "test_pf_baseline": 1.3862068965517242,
+      "test_pf_filtered": 1.552631578947369,
+      "test_pf_baseline_costs": 0.2940242350591636,
+      "test_pf_filtered_costs": 0.11931429733289581
+    },
+    {
+      "feature": "c3_front_wick_atr",
+      "direction": "<=",
+      "threshold": 0.156695,
+      "test_n_baseline": 561,
+      "test_n_kept": 196,
+      "test_retention": 0.3493761140819964,
+      "test_pf_baseline": 1.3862068965517242,
+      "test_pf_filtered": 1.5049504950495056,
+      "test_pf_baseline_costs": 0.2940242350591636,
+      "test_pf_filtered_costs": 0.2285148359630882
+    },
+    {
+      "feature": "c1_atr_mult",
+      "direction": ">=",
+      "threshold": 1.268456,
+      "test_n_baseline": 561,
+      "test_n_kept": 290,
+      "test_retention": 0.5169340463458111,
+      "test_pf_baseline": 1.3862068965517242,
+      "test_pf_filtered": 1.5374149659863945,
+      "test_pf_baseline_costs": 0.2940242350591636,
+      "test_pf_filtered_costs": 0.3538381723725961
+    }
+  ],
+  "side_asymmetry": [
+    {
+      "asset": "BTCUSDT",
+      "side": -1,
+      "train_n": 234,
+      "train_pf": 1.2421875,
+      "test_n": 99,
+      "test_pf": 1.1886792452830188
+    },
+    {
+      "asset": "BTCUSDT",
+      "side": 1,
+      "train_n": 258,
+      "train_pf": 1.6859504132231404,
+      "test_n": 98,
+      "test_pf": 1.574468085106383
+    },
+    {
+      "asset": "ETHUSDT",
+      "side": -1,
+      "train_n": 232,
+      "train_pf": 1.3140495867768596,
+      "test_n": 87,
+      "test_pf": 1.697674418604651
+    },
+    {
+      "asset": "ETHUSDT",
+      "side": 1,
+      "train_n": 250,
+      "train_pf": 1.8189655172413792,
+      "test_n": 111,
+      "test_pf": 1.064516129032258
+    },
+    {
+      "asset": "SOLUSDT",
+      "side": -1,
+      "train_n": 90,
+      "train_pf": 2.15,
+      "test_n": 94,
+      "test_pf": 1.2244897959183674
+    },
+    {
+      "asset": "SOLUSDT",
+      "side": 1,
+      "train_n": 117,
+      "train_pf": 1.0555555555555556,
+      "test_n": 72,
+      "test_pf": 1.8333333333333348
+    }
+  ]
+}

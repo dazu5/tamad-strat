@@ -1,0 +1,210 @@
+{
+  "final": {
+    "n_train": 1177,
+    "n_total": 1738,
+    "n_dropped_nan": 4,
+    "importances": {
+      "c1_range_atr": 0.0841,
+      "c3_front_wick_atr": 0.0734,
+      "c3_range_atr": 0.0653,
+      "c1_atr_mult": 0.0604,
+      "ema200_dist_atr": 0.059,
+      "dist_lo20_atr": 0.057,
+      "vol_ratio": 0.0552,
+      "risk_pct": 0.0538,
+      "c3_body_atr": 0.0506,
+      "c2_body_atr": 0.0481,
+      "ema50_dist_atr": 0.0472,
+      "dist_hi20_atr": 0.0471,
+      "ret20_atr": 0.0443,
+      "c2_range_atr": 0.044,
+      "rsi14": 0.0396,
+      "atr_pct": 0.0393,
+      "hold_margin_atr": 0.0368,
+      "hour": 0.0235,
+      "dow": 0.0195,
+      "sweep": 0.0086,
+      "side": 0.0076,
+      "asset_BTCUSDT": 0.0075,
+      "asset_ETHUSDT": 0.0064,
+      "in_div": 0.0057,
+      "confluence_count": 0.0056,
+      "in_sr": 0.0041,
+      "in_fvg": 0.0025,
+      "is_weekend": 0.0025,
+      "in_swing": 0.001,
+      "asset_SOLUSDT": 0.0006,
+      "in_ob": 0.0
+    },
+    "candidates": [
+      {
+        "feature": "risk_pct",
+        "direction": "<=",
+        "threshold": 0.23378266287565383,
+        "quantile": 0.2,
+        "train_retention": 0.20050977060322855,
+        "train_pf": 2.8739495798319328,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "stop width vs price: wider stops survive noise AND pay less cost in R"
+      },
+      {
+        "feature": "c3_front_wick_atr",
+        "direction": "<=",
+        "threshold": 0.15669452159159009,
+        "quantile": 0.3,
+        "train_retention": 0.29991503823279525,
+        "train_pf": 2.608695652173913,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "rejection tail in the reversal direction on the signal candle"
+      },
+      {
+        "feature": "c3_range_atr",
+        "direction": ">=",
+        "threshold": 1.0741181322011244,
+        "quantile": 0.8,
+        "train_retention": 0.20050977060322855,
+        "train_pf": 2.4504504504504503,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "reach of the hold candle"
+      },
+      {
+        "feature": "vol_ratio",
+        "direction": "<=",
+        "threshold": 0.6991868343500214,
+        "quantile": 0.3,
+        "train_retention": 0.29991503823279525,
+        "train_pf": 2.2114285714285713,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "volatility regime (ATR vs its 30d mean) \u2014 expansion vs compression"
+      },
+      {
+        "feature": "dist_lo20_atr",
+        "direction": "<=",
+        "threshold": 1.706844049262232,
+        "quantile": 0.4,
+        "train_retention": 0.4001699235344095,
+        "train_pf": 2.073170731707317,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "support beneath at recent extremes"
+      },
+      {
+        "feature": "c1_range_atr",
+        "direction": "<=",
+        "threshold": 1.4888689657694272,
+        "quantile": 0.3,
+        "train_retention": 0.29991503823279525,
+        "train_pf": 1.8579881656804733,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "conviction of the climax leg vs regime volatility"
+      },
+      {
+        "feature": "ema200_dist_atr",
+        "direction": ">=",
+        "threshold": 0.9240248056839833,
+        "quantile": 0.6,
+        "train_retention": 0.4001699235344095,
+        "train_pf": 1.757847533632287,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "counter-trend depth vs the slow regime"
+      },
+      {
+        "feature": "c1_atr_mult",
+        "direction": ">=",
+        "threshold": 1.268456375838939,
+        "quantile": 0.5,
+        "train_retention": 0.5004248088360238,
+        "train_pf": 1.6890459363957597,
+        "baseline_pf": 1.5208333333333333,
+        "rationale": "climax exhaustion \u2014 an outsized first candle marks capitulation"
+      }
+    ],
+    "rediscovery": {
+      "passed": false,
+      "ranks": {
+        "in_ob": 31,
+        "confluence_count": 25,
+        "hour": 18
+      },
+      "top_n": 10
+    }
+  },
+  "sanity": {
+    "n_train": 5164,
+    "n_total": 7755,
+    "n_dropped_nan": 18,
+    "importances": {
+      "c3_front_wick_atr": 0.0616,
+      "c3_range_atr": 0.059,
+      "c2_body_atr": 0.0577,
+      "dist_lo20_atr": 0.0533,
+      "rsi14": 0.053,
+      "ret20_atr": 0.0524,
+      "ema200_dist_atr": 0.0516,
+      "dist_hi20_atr": 0.051,
+      "hold_margin_atr": 0.0494,
+      "c3_body_atr": 0.0491,
+      "c1_atr_mult": 0.0489,
+      "c2_range_atr": 0.0489,
+      "atr_pct": 0.0487,
+      "ema50_dist_atr": 0.0477,
+      "risk_pct": 0.0477,
+      "vol_ratio": 0.0475,
+      "hour": 0.0454,
+      "c1_range_atr": 0.0446,
+      "dow": 0.0195,
+      "confluence_count": 0.0109,
+      "sweep": 0.0084,
+      "in_fvg": 0.0066,
+      "in_ob": 0.0062,
+      "asset_ETHUSDT": 0.0055,
+      "in_div": 0.0054,
+      "asset_BTCUSDT": 0.0049,
+      "in_sr": 0.0043,
+      "side": 0.0041,
+      "asset_SOLUSDT": 0.0027,
+      "is_weekend": 0.0025,
+      "in_swing": 0.0013
+    },
+    "candidates": [
+      {
+        "feature": "c3_front_wick_atr",
+        "direction": "<=",
+        "threshold": 0.1055825517036792,
+        "quantile": 0.2,
+        "train_retention": 0.20003872966692487,
+        "train_pf": 1.1485943775100402,
+        "baseline_pf": 1.0176348547717842,
+        "rationale": "rejection tail in the reversal direction on the signal candle"
+      },
+      {
+        "feature": "c3_range_atr",
+        "direction": "<=",
+        "threshold": 0.6255630251754009,
+        "quantile": 0.2,
+        "train_retention": 0.20003872966692487,
+        "train_pf": 1.1210106382978724,
+        "baseline_pf": 1.0176348547717842,
+        "rationale": "reach of the hold candle"
+      },
+      {
+        "feature": "dist_lo20_atr",
+        "direction": "<=",
+        "threshold": 1.3538108541743754,
+        "quantile": 0.3,
+        "train_retention": 0.2999612703330751,
+        "train_pf": 1.1051236749116609,
+        "baseline_pf": 1.0176348547717842,
+        "rationale": "support beneath at recent extremes"
+      }
+    ],
+    "rediscovery": {
+      "passed": false,
+      "ranks": {
+        "in_ob": 23,
+        "confluence_count": 20,
+        "hour": 17
+      },
+      "top_n": 10
+    }
+  }
+}
