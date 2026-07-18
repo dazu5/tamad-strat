@@ -36,6 +36,10 @@ class ZoneConfig:
     sr_min_touches: int = 3
     sr_cluster_atr: float = 0.5      # pivots within this ATR distance cluster
     sr_max_age: int = 5000
+    fvg_min_atr: float = 0.0         # minimum gap height in ATR multiples
+    fvg_max_age: int = 1000
+    ob_displacement_atr: float = 1.5  # body size that counts as displacement
+    ob_max_age: int = 1000
     atr_period: int = 14
 
 
@@ -128,9 +132,89 @@ def sr_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFr
     return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
 
 
+def fvg_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFrame:
+    """Fair value gaps: three-bar imbalances.
+
+    Bullish: bar i's low sits above bar i-2's high -> zone spans the gap,
+    born at bar i (the bar that completes the pattern). The zone dies when
+    a later bar trades through the entire gap (fully filled) or after
+    fvg_max_age bars. Gaps under fvg_min_atr x ATR are ignored.
+    """
+    highs = candles["high"].to_numpy()
+    lows = candles["low"].to_numpy()
+    atr_series = atr(candles, cfg.atr_period).bfill().fillna(0.0).to_numpy()
+    n = len(candles)
+    rows = []
+    for i in range(2, n):
+        for bull in (True, False):
+            if bull:
+                lower, upper = highs[i - 2], lows[i]
+            else:
+                lower, upper = highs[i], lows[i - 2]
+            if upper - lower <= cfg.fvg_min_atr * atr_series[i] or upper <= lower:
+                continue
+            died_idx = min(i + cfg.fvg_max_age, n - 1)
+            # fully filled when price trades through the whole gap again
+            for j in range(i + 1, died_idx + 1):
+                filled = lows[j] <= lower if bull else highs[j] >= upper
+                if filled:
+                    died_idx = j
+                    break
+            rows.append({
+                "kind": "fvg_bull" if bull else "fvg_bear",
+                "lower": float(lower), "upper": float(upper),
+                "born": candles.index[i], "died": candles.index[died_idx],
+            })
+    return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
+
+
+def ob_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFrame:
+    """Order blocks: the last opposite candle before a displacement bar.
+
+    Bullish: a green bar whose body >= ob_displacement_atr x ATR promotes
+    the most recent red bar (within 3 bars) to a zone from its low to its
+    body top, born at the displacement bar. Bearish mirrors. Age-based
+    expiry.
+    """
+    opens = candles["open"].to_numpy()
+    closes = candles["close"].to_numpy()
+    highs = candles["high"].to_numpy()
+    lows = candles["low"].to_numpy()
+    body = closes - opens
+    atr_series = atr(candles, cfg.atr_period).bfill().fillna(0.0).to_numpy()
+    n = len(candles)
+    rows = []
+    for j in range(1, n):
+        threshold = cfg.ob_displacement_atr * atr_series[j]
+        if threshold <= 0 or abs(body[j]) < threshold:
+            continue
+        bull = body[j] > 0
+        source = None
+        for i in range(j - 1, max(j - 4, -1), -1):
+            if (body[i] < 0) if bull else (body[i] > 0):
+                source = i
+                break
+        if source is None:
+            continue
+        died_idx = min(j + cfg.ob_max_age, n - 1)
+        if bull:
+            lower, upper = float(lows[source]), float(max(opens[source], closes[source]))
+            kind = "ob_bull"
+        else:
+            lower, upper = float(min(opens[source], closes[source])), float(highs[source])
+            kind = "ob_bear"
+        rows.append({
+            "kind": kind, "lower": lower, "upper": upper,
+            "born": candles.index[j], "died": candles.index[died_idx],
+        })
+    return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
+
+
 DETECTORS = {
     "swing": swing_zones,
     "sr": sr_zones,
+    "fvg": fvg_zones,
+    "ob": ob_zones,
 }
 
 
