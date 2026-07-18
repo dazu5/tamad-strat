@@ -1,0 +1,31 @@
+{
+  "config": {
+    "symbol": "BTCUSDT",
+    "interval": "5m",
+    "start": "2017-08-01",
+    "end": "2023-01-01",
+    "rr": 3.0,
+    "risk_per_trade": 1.0,
+    "sweep_required": false,
+    "c1_min_atr": null,
+    "zones": [],
+    "zone_pad_atr": 0.25,
+    "bias_tf": "4h",
+    "bias_max_age": 12,
+    "tp_mode": "own"
+  },
+  "config_hash": "2f6520aa76ce",
+  "split": "train",
+  "holdout_unlocked": false,
+  "setups": 32862,
+  "metrics": {
+    "trade_count": 19052,
+    "wins": 4721,
+    "losses": 14331,
+    "win_rate": 0.24779550703338232,
+    "net_r": -167.195459032577,
+    "expectancy_r": -0.008775743178279288,
+    "profit_factor": 0.9883326462984711
+  },
+  "cached": false
+}
