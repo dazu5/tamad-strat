@@ -54,6 +54,8 @@ class RunConfig:
     bias_tf: str | None = None       # e.g. "4h" or "1d"
     bias_max_age: int = 12           # bias lifetime in HTF bars
     tp_mode: str = "own"             # "own" = 3R; "htf" = HTF pattern's target
+    # session pill (issue #14) — UTC thirds; None = all hours
+    session: str | None = None       # "asia_00_08" | "europe_08_16" | "us_16_24"
 
     def config_hash(self) -> str:
         """Stable across future field additions: default values are excluded,
@@ -111,6 +113,15 @@ def _filter_by_zones(setups: pd.DataFrame, candles: pd.DataFrame,
         tol = float(pad.get(t, 0.0))
         keep.append(any(lower[i] - tol <= price <= upper[i] + tol for i in alive))
     return setups.sort_index()[keep]
+
+
+_SESSIONS = {"asia_00_08": (0, 8), "europe_08_16": (8, 16), "us_16_24": (16, 24)}
+
+
+def _session_mask(times: pd.DatetimeIndex, session: str) -> pd.Series:
+    lo, hi = _SESSIONS[session]
+    hours = times.hour
+    return pd.Series((hours >= lo) & (hours < hi), index=times)
 
 
 def _apply_bias(setups: pd.DataFrame, htf_setups: pd.DataFrame, bias_tf: str,
@@ -178,6 +189,8 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
         setups = setups[setups["sweep"]]
     if config.c1_min_atr is not None:
         setups = setups[setups["c1_atr_mult"] >= config.c1_min_atr]
+    if config.session:
+        setups = setups[_session_mask(setups.index, config.session)]
     if config.zones:
         setups = _filter_by_zones(setups, candles, config)
     if config.bias_tf:
