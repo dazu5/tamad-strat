@@ -90,23 +90,66 @@ def portfolio_row(trade_frames: list[pd.DataFrame]) -> dict:
     return metrics.summarize(combined)
 
 
-def run_grid(contexts: list[dict]) -> pd.DataFrame:
-    rows = []
+def _grid_configs() -> list[dict]:
     keys = list(GRID)
-    for values in itertools.product(*(GRID[k] for k in keys)):
-        cfg = dict(zip(keys, values))
-        frames = []
-        per_combo_pf = []
-        for ctx in contexts:
+    return [dict(zip(keys, values))
+            for values in itertools.product(*(GRID[k] for k in keys))]
+
+
+def run_grid(contexts=None, combo_specs=None, start=None, end=None) -> pd.DataFrame:
+    """Evaluate the grid combo-major so only ONE context lives in memory.
+
+    Either pass prebuilt `contexts` (small tests) or `combo_specs` as
+    (symbol, interval) pairs with start/end — each context is then built,
+    swept across all configs, and released before the next. Portfolio
+    metrics aggregate exactly from per-combo gross sums (PF = sum of
+    gross profits / sum of gross losses).
+    """
+    import gc
+
+    configs = _grid_configs()
+    acc = [{"gross_p": 0.0, "gross_l": 0.0, "net": 0.0, "n": 0, "wins": 0,
+            "pf_above": 0} for _ in configs]
+
+    def sweep(ctx):
+        for i, cfg in enumerate(configs):
             trades = evaluate(ctx, cfg)
-            frames.append(trades)
-            per_combo_pf.append(metrics.summarize(trades)["profit_factor"])
-        agg = portfolio_row(frames)
+            pnl = trades["pnl"]
+            gross_p = float(pnl[pnl > 0].sum())
+            gross_l = float(-pnl[pnl < 0].sum())
+            acc[i]["gross_p"] += gross_p
+            acc[i]["gross_l"] += gross_l
+            acc[i]["net"] += float(pnl.sum())
+            acc[i]["n"] += int(len(trades))
+            acc[i]["wins"] += int((pnl > 0).sum())
+            if gross_l > 0 and gross_p / gross_l > 1.0:
+                acc[i]["pf_above"] += 1
+
+    if contexts is not None:
+        for ctx in contexts:
+            sweep(ctx)
+    else:
+        for symbol, interval in combo_specs:
+            print(f"context {symbol} {interval}...", flush=True)
+            ctx = combo_context(symbol, interval, start, end)
+            sweep(ctx)
+            del ctx
+            gc.collect()
+
+    rows = []
+    for cfg, a in zip(configs, acc):
+        pf = (a["gross_p"] / a["gross_l"]) if a["gross_l"] > 0 else (
+            float("inf") if a["gross_p"] > 0 else 0.0)
         rows.append({
             **{k: (",".join(v) if isinstance(v, tuple) else v)
                for k, v in cfg.items()},
-            **agg,
-            "combos_pf_above_1": sum(1 for pf in per_combo_pf if pf > 1.0),
+            "trade_count": a["n"],
+            "wins": a["wins"],
+            "win_rate": a["wins"] / a["n"] if a["n"] else 0.0,
+            "net_r": a["net"],
+            "expectancy_r": a["net"] / a["n"] if a["n"] else 0.0,
+            "profit_factor": pf,
+            "combos_pf_above_1": a["pf_above"],
         })
     table = pd.DataFrame(rows).sort_values("profit_factor", ascending=False)
     return table.reset_index(drop=True)
@@ -148,14 +191,9 @@ def main() -> None:
     p.add_argument("--report", default="docs/ABLATION_RESULTS.md")
     args = p.parse_args()
 
-    contexts = []
-    for symbol in SYMBOLS:
-        for interval in INTERVALS:
-            print(f"context {symbol} {interval}...", flush=True)
-            contexts.append(combo_context(symbol, interval, args.start, args.end))
-
-    print("evaluating grid...", flush=True)
-    train_table = run_grid(contexts)
+    combo_specs = [(s, i) for s in SYMBOLS for i in INTERVALS]
+    train_table = run_grid(combo_specs=combo_specs,
+                           start=args.start, end=args.end)
     train_table.to_json("results/ablation_train.json", orient="records", indent=2)
 
     top = train_table.head(args.top)

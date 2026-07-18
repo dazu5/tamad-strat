@@ -48,9 +48,12 @@ def main() -> None:
     p.add_argument("--report", default=None)
     args = p.parse_args()
 
+    import gc
+
     rows = []
     for symbol in SYMBOLS:
         for interval in INTERVALS:
+            gc.collect()
             for name, extra in VARIANTS:
                 record = experiments.run(RunConfig(
                     symbol=symbol, interval=interval,
