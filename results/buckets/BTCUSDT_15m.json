@@ -1,0 +1,42 @@
+{
+  "combo":{
+    "0_zones":"BTCUSDT 15m",
+    "1_zone":"BTCUSDT 15m",
+    "2plus_zones":"BTCUSDT 15m"
+  },
+  "trade_count":{
+    "0_zones":763.0,
+    "1_zone":2755.0,
+    "2plus_zones":8487.0
+  },
+  "wins":{
+    "0_zones":187.0,
+    "1_zone":644.0,
+    "2plus_zones":2051.0
+  },
+  "losses":{
+    "0_zones":576.0,
+    "1_zone":2111.0,
+    "2plus_zones":6436.0
+  },
+  "win_rate":{
+    "0_zones":0.24508519,
+    "1_zone":0.2337568058,
+    "2plus_zones":0.241663721
+  },
+  "net_r":{
+    "0_zones":-15.0,
+    "1_zone":-179.0,
+    "2plus_zones":-283.0
+  },
+  "expectancy_r":{
+    "0_zones":-0.0196592398,
+    "1_zone":-0.0649727768,
+    "2plus_zones":-0.0333451161
+  },
+  "profit_factor":{
+    "0_zones":0.9739583333,
+    "1_zone":0.9152060635,
+    "2plus_zones":0.9560285892
+  }
+}

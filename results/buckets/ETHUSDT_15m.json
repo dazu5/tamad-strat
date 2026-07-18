@@ -1,0 +1,42 @@
+{
+  "combo":{
+    "0_zones":"ETHUSDT 15m",
+    "1_zone":"ETHUSDT 15m",
+    "2plus_zones":"ETHUSDT 15m"
+  },
+  "trade_count":{
+    "0_zones":651.0,
+    "1_zone":2624.0,
+    "2plus_zones":8598.0
+  },
+  "wins":{
+    "0_zones":166.0,
+    "1_zone":666.0,
+    "2plus_zones":2130.0
+  },
+  "losses":{
+    "0_zones":485.0,
+    "1_zone":1958.0,
+    "2plus_zones":6468.0
+  },
+  "win_rate":{
+    "0_zones":0.2549923195,
+    "1_zone":0.2538109756,
+    "2plus_zones":0.2477320307
+  },
+  "net_r":{
+    "0_zones":13.0,
+    "1_zone":40.0,
+    "2plus_zones":-79.9709161415
+  },
+  "expectancy_r":{
+    "0_zones":0.019969278,
+    "1_zone":0.0152439024,
+    "2plus_zones":-0.0093011068
+  },
+  "profit_factor":{
+    "0_zones":1.0268041237,
+    "1_zone":1.0204290092,
+    "2plus_zones":0.9876359128
+  }
+}

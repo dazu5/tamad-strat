@@ -1,0 +1,42 @@
+{
+  "combo":{
+    "0_zones":"SOLUSDT 15m",
+    "1_zone":"SOLUSDT 15m",
+    "2plus_zones":"SOLUSDT 15m"
+  },
+  "trade_count":{
+    "0_zones":291.0,
+    "1_zone":989.0,
+    "2plus_zones":4446.0
+  },
+  "wins":{
+    "0_zones":68.0,
+    "1_zone":253.0,
+    "2plus_zones":1088.0
+  },
+  "losses":{
+    "0_zones":223.0,
+    "1_zone":736.0,
+    "2plus_zones":3357.0
+  },
+  "win_rate":{
+    "0_zones":0.2336769759,
+    "1_zone":0.2558139535,
+    "2plus_zones":0.24471435
+  },
+  "net_r":{
+    "0_zones":-19.0,
+    "1_zone":21.375,
+    "2plus_zones":-93.0
+  },
+  "expectancy_r":{
+    "0_zones":-0.0652920962,
+    "1_zone":0.0216127401,
+    "2plus_zones":-0.0209176788
+  },
+  "profit_factor":{
+    "0_zones":0.9147982063,
+    "1_zone":1.0290421196,
+    "2plus_zones":0.9722966935
+  }
+}
