@@ -14,16 +14,15 @@ Methodology modeled on Revelio Trading's TJR strategy analysis, with stricter ou
 
 PRD: [issue #1](https://github.com/dazu5/tamad-strat/issues/1) — eight modules (data, pattern, zones, engine, metrics, experiments, risk, dashboard), custom event-driven Python engine, full test coverage.
 
+Implementation plan: [issues #2–#18](https://github.com/dazu5/tamad-strat/issues) — 17 tracer-bullet vertical slices in dependency order, from the walking skeleton (#2) to the HITL holdout unlock + final verdict (#18). Crypto basket: BTC, ETH, SOL.
+
+Claimed baseline under test: 60% win rate at 1:3 RR over 300+ journaled trades (see spec §1b).
+
 ## Status
 
 - [x] Rules captured, ambiguities catalogued
 - [x] Open questions resolved (exits, markets, C1 size, multi-TF roles)
 - [x] Research: methodology distilled from all four Revelio videos
 - [x] PRD written and filed as issue #1
-- [ ] Data acquisition
-- [ ] V0 baseline backtest (naked pattern)
-- [ ] Version ladder tests
-- [ ] Ablation study
-- [ ] Exit-structure exploration
-- [ ] Risk engineering + costs
-- [ ] Final untouched-holdout validation
+- [x] PRD broken into 17 tracer-bullet issues (#2–#18)
+- [ ] Implementation — starts with #2 (walking skeleton) and #3 (Monte Carlo checker) on explicit approval
