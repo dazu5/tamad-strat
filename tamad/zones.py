@@ -40,6 +40,9 @@ class ZoneConfig:
     fvg_max_age: int = 1000
     ob_displacement_atr: float = 1.5  # body size that counts as displacement
     ob_max_age: int = 1000
+    rsi_period: int = 14
+    div_lookback: int = 60           # max bars between the two pivots
+    div_max_age: int = 500
     atr_period: int = 14
 
 
@@ -210,11 +213,62 @@ def ob_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFr
     return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
 
 
+def rsi(close: pd.Series, period: int = 14) -> pd.Series:
+    """Wilder's RSI."""
+    delta = close.diff()
+    gain = delta.clip(lower=0).ewm(alpha=1 / period, adjust=False).mean()
+    loss = (-delta.clip(upper=0)).ewm(alpha=1 / period, adjust=False).mean()
+    rs = gain / loss.replace(0, float("nan"))
+    out = 100 - 100 / (1 + rs)
+    return out.fillna(50.0).where(~close.diff().isna(), other=float("nan"))
+
+
+def div_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFrame:
+    """Regular RSI divergence at price pivots.
+
+    Bullish: consecutive price swing lows within div_lookback bars where
+    price makes a lower low but RSI makes a higher low. The zone wraps the
+    second pivot's extreme (swing_zone_atr half-width), born at its
+    confirmation bar. Bearish mirrors on highs. Age-based expiry.
+    """
+    atr_series = atr(candles, cfg.atr_period).bfill()
+    rsi_series = rsi(candles["close"], cfg.rsi_period)
+    n = len(candles)
+    rows = []
+    for is_low, kind, series in (
+        (True, "div_bull", candles["low"].to_numpy()),
+        (False, "div_bear", candles["high"].to_numpy()),
+    ):
+        pivots = _pivot_indices(series, cfg.swing_left, cfg.swing_right, is_low)
+        for a, b in zip(pivots, pivots[1:]):
+            if b - a > cfg.div_lookback:
+                continue
+            price_worse = series[b] < series[a] if is_low else series[b] > series[a]
+            rsi_a, rsi_b = float(rsi_series.iloc[a]), float(rsi_series.iloc[b])
+            rsi_better = rsi_b > rsi_a if is_low else rsi_b < rsi_a
+            if not (price_worse and rsi_better):
+                continue
+            confirm = b + cfg.swing_right
+            if confirm >= n:
+                continue
+            width = cfg.swing_zone_atr * float(atr_series.iloc[b])
+            died_idx = min(confirm + cfg.div_max_age, n - 1)
+            rows.append({
+                "kind": kind,
+                "lower": float(series[b]) - width,
+                "upper": float(series[b]) + width,
+                "born": candles.index[confirm],
+                "died": candles.index[died_idx],
+            })
+    return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
+
+
 DETECTORS = {
     "swing": swing_zones,
     "sr": sr_zones,
     "fvg": fvg_zones,
     "ob": ob_zones,
+    "div": div_zones,
 }
 
 
