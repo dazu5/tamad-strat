@@ -61,3 +61,19 @@ def test_run_matrix_covers_every_combination(monkeypatch):
     assert len(calls) == 6
     assert len(table) == 6
     assert {"symbol", "interval", "win_rate", "profit_factor"} <= set(table.columns)
+
+
+def test_write_report_produces_committed_markdown(tmp_path, monkeypatch):
+    trades = make_trades(40)
+    monkeypatch.setattr(matrix.experiments, "load_trades", lambda h: trades)
+    table = pd.DataFrame([{
+        "symbol": "BTCUSDT", "interval": "15m", "config_hash": "abc",
+        "trade_count": 40, "wins": 20, "losses": 20, "win_rate": 0.5,
+        "net_r": 40.0, "expectancy_r": 1.0, "profit_factor": 3.0,
+    }])
+    out = tmp_path / "V0.md"
+    matrix.write_report(table, out, "V0 full matrix", "[a .. b)")
+    text = out.read_text(encoding="utf-8")
+    assert "BTCUSDT" in text
+    assert "## By session" in text
+    assert "small_sample" in text

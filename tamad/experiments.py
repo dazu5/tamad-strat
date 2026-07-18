@@ -77,7 +77,7 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
         record["cached"] = True
         return record
 
-    candles = data.get_candles(config.symbol, config.interval, config.start, config.end)
+    candles = data.candles(config.symbol, config.interval, config.start, config.end)
     setups = pattern.detect(candles, pattern.PatternConfig(rr=config.rr))
     if config.sweep_required:
         setups = setups[setups["sweep"]]

@@ -14,7 +14,8 @@ def fake_source(tmp_path, monkeypatch):
         calls.append((year, month))
         if (year, month) == (2022, 3):   # simulate a month with no data
             return None
-        idx = pd.date_range(f"{year}-{month:02d}-01", periods=100, freq="15min", tz="UTC")
+        freq, periods = ("5min", 99) if interval == "5m" else ("15min", 100)
+        idx = pd.date_range(f"{year}-{month:02d}-01", periods=periods, freq=freq, tz="UTC")
         df = pd.DataFrame(
             {"open": 1.0, "high": 2.0, "low": 0.5, "close": 1.5, "volume": 10.0},
             index=idx,
@@ -64,6 +65,13 @@ def test_resample_derives_aligned_htf():
     assert hourly.iloc[0]["low"] == 0
     assert hourly.iloc[0]["close"] == 4.5
     assert hourly.iloc[0]["volume"] == 4
+
+
+def test_candles_serves_htf_by_resampling_the_base(fake_source):
+    df_5m = data.candles("BTCUSDT", "5m", "2022-01-01", "2022-02-01")
+    df_15m = data.candles("BTCUSDT", "15m", "2022-01-01", "2022-02-01")
+    assert fake_source == [(2022, 1)]           # one base download serves both
+    assert len(df_15m) == len(df_5m) // 3
 
 
 def test_find_gaps_reports_holes():

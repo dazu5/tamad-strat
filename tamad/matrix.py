@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
@@ -66,19 +67,47 @@ def run_matrix(symbols, intervals, start, end) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+_FMT = {"win_rate": "{:.1%}".format, "expectancy_r": "{:+.3f}".format,
+        "net_r": "{:+.1f}".format, "profit_factor": "{:.3f}".format}
+_COLS = ["symbol", "interval", "trade_count", "win_rate", "expectancy_r",
+         "net_r", "profit_factor"]
+
+
+def write_report(table: pd.DataFrame, path, title: str, window: str) -> None:
+    """Commit-ready markdown: matrix table + per-slice breakdowns."""
+    lines = [f"# {title}", "", f"Window: {window} · zero costs · flat $1 risk · "
+             f"taught exits (SL = pattern extreme, TP = 3R). Breakeven WR at 1:3 = 25%.",
+             "", table[_COLS].to_markdown(index=False), ""]
+    all_trades = []
+    for h in table["config_hash"]:
+        try:
+            t = experiments.load_trades(h)
+        except FileNotFoundError:
+            continue
+        all_trades.append(t)
+    if all_trades:
+        combined = pd.concat(all_trades, ignore_index=True)
+        for by in ("direction", "session", "month"):
+            bd = breakdown(combined, by)
+            lines += [f"## By {by}", "",
+                      bd.to_markdown(), ""]
+        lines += [f"Slices with fewer than {MIN_TRADES} trades are flagged "
+                  "`small_sample` and carry no conclusions.", ""]
+    Path(path).write_text("\n".join(lines), encoding="utf-8")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--start", required=True)
     p.add_argument("--end", required=True)
+    p.add_argument("--report", default=None, help="write markdown report to this path")
     args = p.parse_args()
     table = run_matrix(SYMBOLS, INTERVALS, args.start, args.end)
-    cols = ["symbol", "interval", "trade_count", "win_rate", "expectancy_r",
-            "net_r", "profit_factor"]
-    print(table[cols].to_string(index=False,
-          formatters={"win_rate": "{:.1%}".format,
-                      "expectancy_r": "{:+.3f}".format,
-                      "net_r": "{:+.1f}".format,
-                      "profit_factor": "{:.3f}".format}))
+    print(table[_COLS].to_string(index=False, formatters=_FMT))
+    if args.report:
+        write_report(table, args.report, "V0 full matrix",
+                     f"[{args.start} .. {args.end})")
+        print(f"report written to {args.report}")
 
 
 if __name__ == "__main__":

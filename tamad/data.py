@@ -105,6 +105,21 @@ def get_candles(
     return out.loc[(out.index >= start) & (out.index < end)]
 
 
+BASE_INTERVAL = "5m"
+
+
+def candles(symbol: str, interval: str, start, end) -> pd.DataFrame:
+    """Candles at any supported interval, derived from the cached 5m base.
+
+    The 5m base is the single source of truth; higher timeframes resample
+    from it (spot-checked against exchange-native candles in the backbone).
+    """
+    base = get_candles(symbol, BASE_INTERVAL, start, end)
+    if interval == BASE_INTERVAL:
+        return base
+    return resample_ohlcv(base, interval)
+
+
 def resample_ohlcv(df: pd.DataFrame, interval: str) -> pd.DataFrame:
     """Derive a higher timeframe from base candles (empty bins drop out)."""
     rule = _RESAMPLE_RULE[interval]
