@@ -38,6 +38,12 @@ _RESAMPLE_RULE = {
 }
 
 
+def to_utc(value: str | pd.Timestamp) -> pd.Timestamp:
+    """Normalize a date-ish value to a UTC timestamp (tz-aware in, tz-aware out)."""
+    ts = pd.Timestamp(value)
+    return ts.tz_localize("UTC") if ts.tzinfo is None else ts.tz_convert("UTC")
+
+
 def _parse_klines(raw: bytes) -> pd.DataFrame:
     df = pd.read_csv(io.BytesIO(raw), header=None, names=_KLINE_COLS)
     if df.iloc[0]["open_time"] == "open_time":  # some archive files carry a header row
@@ -74,8 +80,8 @@ def get_candles(
     """
     if interval not in _INTERVAL_MS:
         raise ValueError(f"unsupported interval: {interval}")
-    start = pd.Timestamp(start, tz="UTC")
-    end = pd.Timestamp(end, tz="UTC")
+    start = to_utc(start)
+    end = to_utc(end)
     frames = []
     last = end - pd.Timedelta(1, "ns")
     for period in pd.period_range(

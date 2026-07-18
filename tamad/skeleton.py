@@ -22,7 +22,7 @@ HOLDOUT_START = pd.Timestamp("2025-01-01", tz="UTC")
 
 
 def run(symbol: str, interval: str, start: str, end: str) -> dict:
-    if pd.Timestamp(end, tz="UTC") > HOLDOUT_START:
+    if data.to_utc(end) > HOLDOUT_START:
         raise SystemExit(
             f"HOLDOUT LOCK: window may not touch {HOLDOUT_START.date()} or later "
             "(see CLAUDE.md; unlock arrives with issue #18 sign-off)."
