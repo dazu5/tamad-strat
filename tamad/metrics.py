@@ -25,6 +25,22 @@ def summarize(trades: pd.DataFrame) -> dict:
     }
 
 
+def equity_curve(trades: pd.DataFrame) -> pd.Series:
+    """Cumulative net R over exit time (flat-risk equity in R units)."""
+    ordered = trades.sort_values("exit_time")
+    curve = ordered["r_multiple"].cumsum()
+    curve.index = pd.to_datetime(ordered["exit_time"], utc=True)
+    return curve
+
+
+def max_drawdown_r(trades: pd.DataFrame) -> float:
+    """Largest peak-to-trough decline of the flat-risk equity curve, in R."""
+    curve = equity_curve(trades)
+    if curve.empty:
+        return 0.0
+    return float((curve.cummax() - curve).max())
+
+
 def summary_table(summary: dict, title: str = "") -> str:
     lines = [title] if title else []
     lines += [

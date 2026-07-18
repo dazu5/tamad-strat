@@ -31,3 +31,21 @@ def test_empty_trades_summary_is_zeroed():
     s = summarize(pd.DataFrame({"r_multiple": [], "pnl": []}))
     assert s["trade_count"] == 0
     assert s["net_r"] == 0.0
+
+
+def test_equity_curve_cumulates_r_over_exit_time():
+    from tamad.metrics import equity_curve
+    idx = pd.date_range("2022-01-01", periods=4, freq="1D", tz="UTC")
+    trades = pd.DataFrame({"exit_time": idx, "r_multiple": [3.0, -1.0, -1.0, 3.0]})
+    curve = equity_curve(trades)
+    assert list(curve.values) == [3.0, 2.0, 1.0, 4.0]
+    assert curve.index[-1] == idx[-1]
+
+
+def test_max_drawdown_r_measures_peak_to_trough():
+    from tamad.metrics import max_drawdown_r
+    idx = pd.date_range("2022-01-01", periods=6, freq="1D", tz="UTC")
+    trades = pd.DataFrame(
+        {"exit_time": idx, "r_multiple": [3.0, 3.0, -1.0, -1.0, -1.0, 3.0]}
+    )
+    assert max_drawdown_r(trades) == 3.0   # peak 6R, trough 3R
