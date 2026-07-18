@@ -13,12 +13,37 @@ the flat $1 used for expectancy measurement.
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 TRADE_COLUMNS = [
     "signal_time", "entry_time", "side", "fill", "sl", "tp",
     "exit_time", "exit_price", "exit_reason", "r_multiple", "pnl",
 ]
+
+_CHUNK = 512  # bars scanned per step; most trades resolve inside one chunk
+
+
+def _first_exit(highs, lows, start, side, sl, tp):
+    """Index and reason of the first bar from `start` hitting SL or TP.
+
+    Bar-order semantics match the reference loop: the exit bar is the
+    first bar touching either level, and SL wins a same-bar tie.
+    """
+    n = len(highs)
+    for lo in range(start, n, _CHUNK):
+        hi = min(lo + _CHUNK, n)
+        if side == 1:
+            sl_hit = lows[lo:hi] <= sl
+            tp_hit = highs[lo:hi] >= tp
+        else:
+            sl_hit = highs[lo:hi] >= sl
+            tp_hit = lows[lo:hi] <= tp
+        either = sl_hit | tp_hit
+        if either.any():
+            i = int(np.argmax(either))
+            return lo + i, ("sl" if sl_hit[i] else "tp")
+    return None, None
 
 
 def simulate(
@@ -31,7 +56,11 @@ def simulate(
     trades = []
     open_until = None  # exit time of the currently open trade
 
+    opens = candles["open"].to_numpy()
+    highs = candles["high"].to_numpy()
+    lows = candles["low"].to_numpy()
     positions = candles.index.get_indexer(setups.index)
+
     for (signal_time, s), pos in zip(setups.iterrows(), positions):
         if pos < 0 or pos + 1 >= len(candles):
             continue
@@ -40,25 +69,18 @@ def simulate(
             continue
 
         side = int(s["side"])
-        fill = float(candles["open"].iloc[pos + 1])
+        fill = float(opens[pos + 1])
         sl = float(s["sl"])
         risk = (fill - sl) * side
         if risk <= 0:
             continue
         tp = fill + side * rr * risk
 
-        exit_time, exit_price, exit_reason = None, None, None
-        for i in range(pos + 1, len(candles)):
-            bar = candles.iloc[i]
-            sl_hit = bar["low"] <= sl if side == 1 else bar["high"] >= sl
-            tp_hit = bar["high"] >= tp if side == 1 else bar["low"] <= tp
-            if sl_hit:  # conservative: SL wins when both touch
-                exit_time, exit_price, exit_reason = candles.index[i], sl, "sl"
-                break
-            if tp_hit:
-                exit_time, exit_price, exit_reason = candles.index[i], tp, "tp"
-                break
-        if exit_reason is None:
+        exit_index, exit_reason = _first_exit(highs, lows, pos + 1, side, sl, tp)
+        if exit_reason is not None:
+            exit_time = candles.index[exit_index]
+            exit_price = sl if exit_reason == "sl" else tp
+        else:
             exit_time = candles.index[-1]
             exit_price = float(candles["close"].iloc[-1])
             exit_reason = "end_of_data"
