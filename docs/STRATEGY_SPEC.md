@@ -10,6 +10,12 @@ Source: rules as taught in the Discord group (captured 2026-07-18, exits/markets
 - **Markets:** mainly crypto (basket TBD); forex as secondary/robustness set
 - **Direction:** both long and short (mirrored rules)
 
+## 1b. Claimed performance (the hypothesis under test)
+
+The group reports **60% win rate at 1:3 RR**, tested at a consistent **$1 flat risk per trade** (good instinct — flat risk isolates expectancy from compounding).
+
+Phase-0 Monte Carlo verdict (2026-07-18): 60% @ 1:3 = **+1.40R expectancy per trade** (breakeven is 25%). If true, compounding at just 1% risk yields ~31× per YEAR at 250 trades/yr with a median max drawdown of ~8% — a world-historic edge; a losing decade would sit 25+ sigma below the mean, i.e. impossible. Small-sample context: a manual test of ~50 trades has a ±13.6-point CI around a measured 60%, and hindsight bias in manual chart-counting inflates win rates further. Treat 60% as an upper anchor, not an expectation; the strategy is still profitable at anything above ~25% WR (plus costs), and a true 35–40% at 1:3 would already be excellent.
+
 ## 2. Rules as taught
 
 1. Color pattern: **red-green-red = bullish setup**, **green-red-green = bearish setup**.
