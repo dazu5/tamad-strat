@@ -56,6 +56,10 @@ class RunConfig:
     tp_mode: str = "own"             # "own" = 3R; "htf" = HTF pattern's target
     # session pill (issue #14) — UTC thirds; None = all hours
     session: str | None = None       # "asia_00_08" | "europe_08_16" | "us_16_24"
+    # official-doc validity rule (#20) — off by default
+    full_wick_required: bool = False
+    # trade context (#21) — "continuation" = with-EMA200-trend after a pullback
+    context: str | None = None
 
     def config_hash(self) -> str:
         """Stable across future field additions: default values are excluded,
@@ -124,6 +128,23 @@ def _session_mask(times: pd.DatetimeIndex, session: str) -> pd.Series:
     return pd.Series((hours >= lo) & (hours < hi), index=times)
 
 
+def _context_mask(setups: pd.DataFrame, candles: pd.DataFrame,
+                  context: str) -> pd.Series:
+    """Continuation (#21): trade side aligned with the EMA200 regime AND
+    the 20-bar move running against the trade into the signal (a
+    pullback). Both computed causally at the signal bar — definitions
+    match ml_filter.build_features."""
+    if context != "continuation":
+        raise ValueError(f"unknown context: {context}")
+    close = candles["close"]
+    ema200 = close.ewm(span=200, adjust=False).mean()
+    ret20 = close - close.shift(20)
+    side = setups["side"].astype(float)
+    align = side * (close - ema200).loc[setups.index] > 0
+    dip = side * ret20.loc[setups.index] < 0
+    return align & dip
+
+
 def _apply_bias(setups: pd.DataFrame, htf_setups: pd.DataFrame, bias_tf: str,
                 bias_max_age: int, tp_mode: str) -> pd.DataFrame:
     """Keep LTF setups aligned with the governing HTF bias window.
@@ -189,8 +210,12 @@ def run(config: RunConfig, unlock_holdout: bool = False) -> dict:
         setups = setups[setups["sweep"]]
     if config.c1_min_atr is not None:
         setups = setups[setups["c1_atr_mult"] >= config.c1_min_atr]
+    if config.full_wick_required:
+        setups = setups[setups["full_wick"]]
     if config.session:
         setups = setups[_session_mask(setups.index, config.session)]
+    if config.context:
+        setups = setups[_context_mask(setups, candles, config.context)]
     if config.zones:
         setups = _filter_by_zones(setups, candles, config)
     if config.bias_tf:

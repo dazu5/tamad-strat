@@ -43,6 +43,8 @@ class ZoneConfig:
     rsi_period: int = 14
     div_lookback: int = 60           # max bars between the two pivots
     div_max_age: int = 500
+    eq_zone_atr: float = 0.25        # equilibrium zone half-width in ATR
+    eq_max_age: int = 500
     atr_period: int = 14
 
 
@@ -263,12 +265,50 @@ def div_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataF
     return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
 
 
+def eq_zones(candles: pd.DataFrame, cfg: ZoneConfig = ZoneConfig()) -> pd.DataFrame:
+    """Equilibrium (#21, official doc): 50% of the latest swing range.
+
+    Each confirmed pivot pairs with the most recent OPPOSITE pivot; the
+    zone wraps the midpoint of that high-low range (eq_zone_atr
+    half-width in ATR), born when the LATER pivot confirms (extreme +
+    swing_right bars). Age-based expiry.
+    """
+    atr_series = atr(candles, cfg.atr_period).bfill()
+    lows = candles["low"].to_numpy()
+    highs = candles["high"].to_numpy()
+    pivots = [(i, "low", float(lows[i])) for i in
+              _pivot_indices(lows, cfg.swing_left, cfg.swing_right, True)]
+    pivots += [(i, "high", float(highs[i])) for i in
+               _pivot_indices(highs, cfg.swing_left, cfg.swing_right, False)]
+    pivots.sort()
+
+    rows = []
+    last = {"low": None, "high": None}
+    for i, polarity, price in pivots:
+        other = "high" if polarity == "low" else "low"
+        if last[other] is not None:
+            mid = (price + last[other]) / 2
+            confirm = i + cfg.swing_right
+            if confirm < len(candles):
+                width = cfg.eq_zone_atr * float(atr_series.iloc[i])
+                died_idx = min(confirm + cfg.eq_max_age, len(candles) - 1)
+                rows.append({
+                    "kind": "eq",
+                    "lower": mid - width, "upper": mid + width,
+                    "born": candles.index[confirm],
+                    "died": candles.index[died_idx],
+                })
+        last[polarity] = price
+    return pd.DataFrame(rows, columns=ZONE_COLUMNS) if rows else _empty_zones()
+
+
 DETECTORS = {
     "swing": swing_zones,
     "sr": sr_zones,
     "fvg": fvg_zones,
     "ob": ob_zones,
     "div": div_zones,
+    "eq": eq_zones,
 }
 
 
