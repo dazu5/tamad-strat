@@ -89,3 +89,15 @@ Market-structure reading (bullish): C1 = selling climax into the level, C2 = rec
 - **Then:** exit-structure exploration (taught 1:3 vs trailing vs alternatives) → asset/TF selection on return/maxDD and stability → optional ML trade-quality filter (train/test split + market-logic veto) → costs → final untouched holdout validation.
 
 Steelman-first protocol: initial falsification runs use in-sample-optimized parameters and zero transaction costs (best case on purpose). A final time slice (target: last ~18–24 months of data) stays untouched until all decisions are frozen.
+
+## 7. Addendum (2026-07-19) — the official documentation arrived
+
+The group's official write-up (`docs/official/TAMAD_STRATEGY.docx`, codified in `docs/OFFICIAL_DOC.md`) reached us AFTER issues #2–#19 completed. It confirms every core rule exactly as formalized above (colors, middle-candle bias, orange-line hold rule, extreme-wick SL, C3-close entry, fixed-RR full close, key-levels requirement, daily+ as bias only) and contains NO sweep rule and NO C1-size rule.
+
+New elements it adds, audited as **V4** (issues #20–#22):
+
+- **Both-wick validity**: all three candles need wicks on both ends (`full_wick` setup flag).
+- **2RR** as a co-equal target with 3RR; official claims are 52% @ 2RR / 46% @ 3RR (NOT the folk 60%).
+- **Timeframe floor 15m**; traded set 15m/30m/1h/4h (5m was never sanctioned); daily+ bias only.
+- **Equilibrium key level** — 50% of the swing range, drawn at pullbacks inside a trend (the doc's own diagrams make the pattern a continuation entry, not a reversal).
+- **Continuation context** (our hypothesis, doc-consistent): trade side aligned with the EMA200 regime after a counter-move into the signal.

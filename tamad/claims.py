@@ -47,8 +47,37 @@ def check_claim(
     }
 
 
+CLAIMS = (
+    ("group journal", 0.60, 3.0),
+    ("official doc @2RR", 0.52, 2.0),
+    ("official doc @3RR", 0.46, 3.0),
+)
+
+
+def official_claims(n_trades: int = 300) -> list[dict]:
+    """Every known claim about the strategy, run through the checker.
+
+    The official doc states no sample size; n_trades applies to all
+    entries for comparability (folk claim: '300+ journaled trades')."""
+    return [
+        {"label": label, "wr": wr, "rr": rr, "n": n_trades,
+         **check_claim(wr, rr, n_trades)}
+        for label, wr, rr in CLAIMS
+    ]
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--official", action="store_true",
+                   help="print every known claim (journal 60%%@3RR, doc 52%%@2RR / 46%%@3RR)")
+    args, _ = p.parse_known_args()
+    if args.official:
+        for c in official_claims():
+            lo, hi = c["wr_ci95"]
+            print(f"{c['label']:20s} WR {c['wr']:.0%} @1:{c['rr']:g} n={c['n']}: "
+                  f"expectancy {c['expectancy_r']:+.2f} R (breakeven {c['breakeven_wr']:.1%}), "
+                  f"CI {lo:.1%}..{hi:.1%}, flat {c['flat_expected_net_r']:+.0f} R")
+        return
     p.add_argument("--wr", type=float, required=True, help="claimed win rate, e.g. 0.60")
     p.add_argument("--rr", type=float, required=True, help="claimed reward:risk, e.g. 3")
     p.add_argument("--n", type=int, required=True, help="claimed trade count")

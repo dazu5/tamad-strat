@@ -51,6 +51,7 @@ def _empty_setups() -> pd.DataFrame:
             "risk": pd.Series(dtype=float),
             "sweep": pd.Series(dtype=bool),
             "c1_atr_mult": pd.Series(dtype=float),
+            "full_wick": pd.Series(dtype=bool),
         },
         index=pd.DatetimeIndex([], name="time", tz="UTC"),
     )
@@ -76,6 +77,15 @@ def detect(df: pd.DataFrame, config: PatternConfig = PatternConfig()) -> pd.Data
     pattern_high = pd.concat([c1_h, c2_h, h], axis=1).max(axis=1)
     atr_series = atr(df, config.atr_period)
 
+    # official-doc validity rule (#20): every candle in the triplet must
+    # carry BOTH wicks; flag only — filtering is downstream config
+    body_top = pd.concat([o, c], axis=1).max(axis=1)
+    body_bot = pd.concat([o, c], axis=1).min(axis=1)
+    both_wicks = (h > body_top) & (l < body_bot)
+    triplet_wicked = (both_wicks
+                      & both_wicks.shift(1, fill_value=False)
+                      & both_wicks.shift(2, fill_value=False))
+
     frames = []
     for mask, side in ((bull, 1), (bear, -1)):
         sel = df.index[mask]
@@ -93,6 +103,7 @@ def detect(df: pd.DataFrame, config: PatternConfig = PatternConfig()) -> pd.Data
                 "risk": risk,
                 "sweep": (c2_l[sel] < c1_l[sel]) if side == 1 else (c2_h[sel] > c1_h[sel]),
                 "c1_atr_mult": (c1_c[sel] - c1_o[sel]).abs() / atr_series[sel],
+                "full_wick": triplet_wicked[sel],
             }
         )
         frames.append(setups[setups["risk"] > 0])
