@@ -37,4 +37,6 @@ Claimed baseline under test: 60% win rate at 1:3 RR over 300+ journaled trades (
 - [x] Risk #17: parity sizing holds OOS — `docs/RISK_RESULTS.md`
 - [x] Costs (#18 AFK part): **costs annihilate every timeframe** (median 0.2–1.4 R/trade) — `docs/COSTS_RESULTS.md`
 - [x] ML layer #19 (Revelio Phase 7): rediscovery check tripped (impurity bias, flagged); OOS survivors = tight-stop + clean-C3 refinements pre-cost; **the edge lives in the tightest structures — the cost-doom is intrinsic**; costs verdict unchanged — `docs/ML_RESULTS.md`
+- [x] Official doc codified #20: rules match our formalization; doc claims 52%@2RR / 46%@3RR (not the folk 60%) — `docs/OFFICIAL_DOC.md`
+- [x] **V4 as-documented audit #22: the continuation reframe is CONFIRMED out-of-sample** — the pill swept the training top-10 and held on test (best PF 1.121, n=1,145; on/off ablation 1.121 vs 1.064); doc claims measured AT breakeven (25.2% vs claimed 46%); both-wick rule and 2RR fail OOS; 4h book positive after costs on both venues (PF 1.39–1.64, n=39 — small) — `docs/V4_RESULTS.md`
 - [ ] **⛔ AWAITING HOLDOUT SIGN-OFF on issue #18** — the one-shot 2025+ validation runs only after the maintainer's recorded approval
